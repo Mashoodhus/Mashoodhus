@@ -1,53 +1,67 @@
-from docx import Document
+from fpdf import FPDF
 
-def create_cv(name, email, phone, education, experience, skills):
-    # Create a new Document
-    doc = Document()
+class PDF(FPDF):
+    def header(self):
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 10, 'Curriculum Vitae', 0, 1, 'C')
 
-    # Add a heading with the name
-    doc.add_heading(name, level=1)
+    def chapter_title(self, title):
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 10, title, 0, 1, 'L')
+        self.ln(4)
 
-    # Add contact information
-    doc.add_paragraph(f"Email: {email}")
-    doc.add_paragraph(f"Phone: {phone}")
+    def chapter_body(self, body):
+        self.set_font('Arial', '', 12)
+        self.multi_cell(0, 10, body)
+        self.ln()
 
-    # Add education section
-    doc.add_heading('Education', level=2)
-    for edu in education:
-        doc.add_paragraph(f"{edu['degree']} in {edu['major']}")
-        doc.add_paragraph(f"{edu['university']}, {edu['year']}")
-
-    # Add experience section
-    doc.add_heading('Experience', level=2)
-    for exp in experience:
-        doc.add_paragraph(f"{exp['position']}, {exp['company']}")
-        doc.add_paragraph(f"{exp['start_date']} - {exp['end_date']}")
-        doc.add_paragraph(exp['description'])
-
-    # Add skills section
-    doc.add_heading('Skills', level=2)
-    doc.add_paragraph(', '.join(skills))
-
-    # Save the document
-    doc.save('my_cv.docx')
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Example data
-    my_name = "John Doe"
-    my_email = "john.doe@example.com"
-    my_phone = "+1234567890"
+    name = "John Doe"
+    email = "john.doe@example.com"
+    phone = "+1234567890"
     
-    my_education = [
+    education = [
         {'degree': 'Bachelor of Science', 'major': 'Computer Science', 'university': 'XYZ University', 'year': '2020'},
         # Add more education entries as needed
     ]
 
-    my_experience = [
+    experience = [
         {'position': 'Software Engineer', 'company': 'ABC Corp', 'start_date': '2020', 'end_date': '2022', 'description': 'Worked on various projects'},
         # Add more experience entries as needed
     ]
 
-    my_skills = ['Python', 'Java', 'Web Development', 'Problem Solving']
+    skills = ['Python', 'Java', 'Web Development', 'Problem Solving']
 
-    # Create the CV
-    create_cv(my_name, my_email, my_phone, my_education, my_experience, my_skills)
+    pdf = PDF()
+    pdf.add_page()
+
+    # Personal Information
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(0, 10, name, 0, 1, 'L')
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f"Email: {email}", 0, 1, 'L')
+    pdf.cell(0, 10, f"Phone: {phone}", 0, 1, 'L')
+    pdf.ln(10)
+
+    # Education
+    pdf.chapter_title('Education')
+    for edu in education:
+        pdf.cell(0, 10, f"{edu['degree']} in {edu['major']}", ln=True)
+        pdf.cell(0, 10, f"{edu['university']}, {edu['year']}", ln=True)
+    pdf.ln(10)
+
+    # Experience
+    pdf.chapter_title('Experience')
+    for exp in experience:
+        pdf.cell(0, 10, f"{exp['position']}, {exp['company']}", ln=True)
+        pdf.cell(0, 10, f"{exp['start_date']} - {exp['end_date']}", ln=True)
+        pdf.multi_cell(0, 10, exp['description'])
+    pdf.ln(10)
+
+    # Skills
+    pdf.chapter_title('Skills')
+    pdf.cell(0, 10, ', '.join(skills), ln=True)
+
+    # Save the document
+    pdf.output("my_cv.pdf")
